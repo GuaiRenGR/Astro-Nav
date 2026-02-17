@@ -1,0 +1,98 @@
+<!-- 页面加载进度条 -->
+<div id="loading-bar" class="fixed top-0 left-0 right-0 h-1 z-[10000] opacity-0 transition-opacity duration-300">
+  <div class="loading-bar-progress h-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 shadow-lg shadow-blue-500/50"></div>
+</div>
+
+<script>
+  const loadingBar = document.getElementById('loading-bar');
+  const progress = loadingBar?.querySelector('.loading-bar-progress') as HTMLElement;
+
+  let currentProgress = 0;
+  let targetProgress = 0;
+  let animationFrame: number;
+
+  function showLoadingBar() {
+    if (loadingBar) {
+      loadingBar.style.opacity = '1';
+      currentProgress = 0;
+      targetProgress = 0;
+      updateProgress();
+    }
+  }
+
+  function setProgress(value: number) {
+    targetProgress = Math.min(value, 95); // 最多到95%，完成时才到100%
+  }
+
+  function completeLoading() {
+    targetProgress = 100;
+    setTimeout(() => {
+      if (loadingBar) {
+        loadingBar.style.opacity = '0';
+      }
+    }, 400);
+  }
+
+  function updateProgress() {
+    currentProgress += (targetProgress - currentProgress) * 0.1;
+
+    if (progress) {
+      progress.style.width = `${currentProgress}%`;
+    }
+
+    if (Math.abs(targetProgress - currentProgress) > 0.5) {
+      animationFrame = requestAnimationFrame(updateProgress);
+    }
+  }
+
+  // 页面加载时显示进度条
+  if (document.readyState === 'loading') {
+    showLoadingBar();
+
+    // 模拟加载进度
+    const progressInterval = setInterval(() => {
+      setProgress(currentProgress + Math.random() * 30);
+
+      if (currentProgress >= 90) {
+        clearInterval(progressInterval);
+      }
+    }, 200);
+
+    window.addEventListener('load', () => {
+      clearInterval(progressInterval);
+      completeLoading();
+    });
+  }
+
+  // 导出全局函数供其他脚本使用
+  (window as any).showLoadingBar = showLoadingBar;
+  (window as any).setLoadingProgress = setProgress;
+  (window as any).completeLoading = completeLoading;
+</script>
+
+<style>
+  .loading-bar-progress {
+    width: 0%;
+    transition: width 0.3s ease-out;
+    animation: shimmer 1.5s infinite;
+  }
+
+  @keyframes shimmer {
+    0% {
+      background-position: -200% center;
+    }
+    100% {
+      background-position: 200% center;
+    }
+  }
+
+  #loading-bar {
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(59, 130, 246, 0.1),
+      transparent
+    );
+    background-size: 200% 100%;
+  }
+</style>

@@ -66,4 +66,20 @@ const { title } = Astro.props;
   .dark ::-webkit-scrollbar-thumb:hover {
     background: rgba(107, 114, 128, 0.7);
   }
+
+  /* 导航栏下滑动画 */
+  @keyframes slideDown {
+    from {
+      transform: translateY(-100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .animate-slideDown {
+    animation: slideDown 0.5s ease-out;
+  }
 </style>

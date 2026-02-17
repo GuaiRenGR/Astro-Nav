@@ -1,0 +1,95 @@
+---
+import type { Website } from '../types';
+import { tagColors } from '../data/sites';
+
+interface Props {
+  site: Website;
+  index: number;
+}
+
+const { site, index } = Astro.props;
+---
+
+<div
+  class="site-card group relative bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer border border-gray-200 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-500"
+  data-site-id={site.id}
+  data-site-name={site.name}
+  data-site-tags={site.tags.join(',')}
+  data-site-pinyin={site.pinyin || ''}
+  data-index={index}
+  style={`animation-delay: ${index * 50}ms`}
+>
+  <a
+    href={site.url}
+    target="_blank"
+    rel="noopener noreferrer"
+    class="block"
+  >
+    <!-- 图标和标题 -->
+    <div class="flex items-start gap-4 mb-3">
+      <div class="flex-shrink-0 w-12 h-12 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+        <img
+          src={site.icon}
+          alt={site.name}
+          class="w-8 h-8 object-contain"
+          loading="lazy"
+          onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%236B7280%22%3E%3Cpath d=%22M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z%22/%3E%3C/svg%3E'"
+        />
+      </div>
+
+      <div class="flex-1 min-w-0">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+          {site.name}
+        </h3>
+        {site.description && (
+          <p class="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 mt-1">
+            {site.description}
+          </p>
+        )}
+      </div>
+    </div>
+
+    <!-- 标签 -->
+    {site.tags.length > 0 && (
+      <div class="flex flex-wrap gap-2 mt-4">
+        {site.tags.map(tag => (
+          <span
+            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium transition-all hover:scale-105"
+            style={`background-color: ${tagColors[tag] || '#6B7280'}20; color: ${tagColors[tag] || '#6B7280'}`}
+          >
+            {tag}
+          </span>
+        ))}
+      </div>
+    )}
+  </a>
+
+  <!-- 悬停效果光晕 -->
+  <div class="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-400/0 via-purple-400/0 to-pink-400/0 group-hover:from-blue-400/10 group-hover:via-purple-400/10 group-hover:to-pink-400/10 transition-all duration-300 pointer-events-none"></div>
+</div>
+
+<style>
+  .site-card {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.6s ease-out forwards;
+  }
+
+  @keyframes fadeInUp {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .site-card:hover {
+    transform: translateY(-8px);
+  }
+
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+</style>

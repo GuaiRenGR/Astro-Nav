@@ -1,0 +1,122 @@
+---
+import { tagColors } from '../data/sites';
+
+interface Props {
+  tags: string[];
+}
+
+const { tags } = Astro.props;
+---
+
+<div class="mb-8">
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">标签筛选</h2>
+    <button
+      id="clear-tags"
+      class="text-sm text-blue-600 dark:text-blue-400 hover:underline hidden"
+    >
+      清除筛选
+    </button>
+  </div>
+
+  <div class="flex flex-wrap gap-2">
+    {tags.map(tag => (
+      <button
+        class="tag-button px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 hover:scale-105 active:scale-95"
+        data-tag={tag}
+        style={`background-color: ${tagColors[tag] || '#6B7280'}20; color: ${tagColors[tag] || '#6B7280'}; border: 2px solid transparent;`}
+      >
+        {tag}
+      </button>
+    ))}
+  </div>
+</div>
+
+<script>
+  const tagButtons = document.querySelectorAll('.tag-button');
+  const clearTagsButton = document.getElementById('clear-tags');
+  const sitesGrid = document.getElementById('sites-grid');
+  const noResults = document.getElementById('no-results');
+
+  let selectedTags = new Set<string>();
+
+  function updateTagStyles() {
+    tagButtons.forEach(button => {
+      const tag = (button as HTMLElement).dataset.tag!;
+      const isSelected = selectedTags.has(tag);
+
+      if (isSelected) {
+        (button as HTMLElement).style.borderColor = (button as HTMLElement).style.color;
+        (button as HTMLElement).style.fontWeight = '600';
+      } else {
+        (button as HTMLElement).style.borderColor = 'transparent';
+        (button as HTMLElement).style.fontWeight = '500';
+      }
+    });
+
+    clearTagsButton?.classList.toggle('hidden', selectedTags.size === 0);
+  }
+
+  function filterByTags() {
+    if (!sitesGrid || !noResults) return;
+
+    const cards = Array.from(sitesGrid.querySelectorAll('.site-card'));
+
+    if (selectedTags.size === 0) {
+      cards.forEach((card, index) => {
+        (card as HTMLElement).style.display = 'block';
+        (card as HTMLElement).style.animationDelay = `${index * 50}ms`;
+      });
+      noResults.classList.add('hidden');
+      return;
+    }
+
+    let visibleCount = 0;
+    cards.forEach((card) => {
+      const cardTags = (card as HTMLElement).dataset.siteTags?.split(',') || [];
+      const hasMatchingTag = Array.from(selectedTags).some(tag => cardTags.includes(tag));
+
+      if (hasMatchingTag) {
+        (card as HTMLElement).style.display = 'block';
+        (card as HTMLElement).style.animationDelay = `${visibleCount * 50}ms`;
+        visibleCount++;
+      } else {
+        (card as HTMLElement).style.display = 'none';
+      }
+    });
+
+    noResults.classList.toggle('hidden', visibleCount > 0);
+  }
+
+  tagButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      const tag = (button as HTMLElement).dataset.tag!;
+
+      if (selectedTags.has(tag)) {
+        selectedTags.delete(tag);
+      } else {
+        selectedTags.add(tag);
+      }
+
+      updateTagStyles();
+      filterByTags();
+    });
+  });
+
+  clearTagsButton?.addEventListener('click', () => {
+    selectedTags.clear();
+    updateTagStyles();
+    filterByTags();
+  });
+</script>
+
+<style>
+  .tag-button {
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .tag-button:hover {
+    filter: brightness(1.1);
+  }
+</style>

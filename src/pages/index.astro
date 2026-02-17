@@ -74,17 +74,9 @@ const allTags = extractTags(processedSites);
     </main>
   </div>
 
-  <script>
-    // 传递数据到客户端
-    window.__SITES_DATA__ = {
-      sites: JSON.parse(document.getElementById('sites-data')?.textContent || '[]'),
-      tags: JSON.parse(document.getElementById('tags-data')?.textContent || '[]'),
-    };
-  </script>
-
   <!-- 数据注入 -->
-  <script id="sites-data" type="application/json" set:html={JSON.stringify(processedSites)} />
-  <script id="tags-data" type="application/json" set:html={JSON.stringify(allTags)} />
+  <script id="sites-data" type="application/json" is:inline set:html={JSON.stringify(processedSites)} />
+  <script id="tags-data" type="application/json" is:inline set:html={JSON.stringify(allTags)} />
 </Layout>
 
 <script>
